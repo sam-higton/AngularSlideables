@@ -1,8 +1,12 @@
 angular.module('angularSlideables', [])
 .directive('slideable', function () {
     return {
-        restrict:'C',
+        restrict:'A',
+        scope: {
+            slideable: '=slideable'
+        },
         compile: function (element, attr) {
+            console.log('compiling');
             // wrap tag
             var contents = element.html();
             element.html('<div class="slideable_content" style="margin:0 !important; padding:0 !important" >' + contents + '</div>');
@@ -18,32 +22,19 @@ angular.module('angularSlideables', [])
                     'transitionDuration': attrs.duration,
                     'transitionTimingFunction': attrs.easing
                 });
+                scope.$watch('slideable', function(newVal,oldVal) {
+                    var content = element.find('.slideable_content');
+                    if(newVal) {
+                        content[0].style.border = '1px solid rgba(0,0,0,0)';
+                        var y = content[0].clientHeight;
+                        content[0].style.border = 0;
+                        element[0].style.height = y + 'px';
+                    } else {
+                        element[0].style.height = '0px';
+                    }
+                });
             };
         }
+
     };
-})
-.directive('slideToggle', function() {
-    return {
-        restrict: 'A',
-        link: function(scope, element, attrs) {
-            var target, content;
-            
-            attrs.expanded = false;
-            
-            element.bind('click', function() {
-                if (!target) target = document.querySelector(attrs.slideToggle);
-                if (!content) content = target.querySelector('.slideable_content');
-                
-                if(!attrs.expanded) {
-                    content.style.border = '1px solid rgba(0,0,0,0)';
-                    var y = content.clientHeight;
-                    content.style.border = 0;
-                    target.style.height = y + 'px';
-                } else {
-                    target.style.height = '0px';
-                }
-                attrs.expanded = !attrs.expanded;
-            });
-        }
-    }
 });
